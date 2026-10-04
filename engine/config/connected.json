@@ -1,0 +1,22 @@
+{
+  "reserve": {
+    "contingency_load_fraction": 0.02,
+    "cap_load_fraction": 0.50,
+    "fallback_load_fraction": 0.10
+  },
+  "dispatch": {
+    "reserve_shortfall_penalty": 100.0,
+    "cost_solve_time_limit_s": 0.5,
+    "critical_solve_time_limit_s": 3.0
+  },
+  "forecast": {
+    "max_horizon_h": 36,
+    "default_horizon_h": 24,
+    "inference_threads": 1,
+    "artifact_directory": "data/forecast_models",
+    "demo_weather_year": 2023,
+    "fallback_spread_load_fraction": 0.20,
+    "fallback_spread_pv_fraction": 0.25,
+    "fallback_spread_wind_fraction": 0.35
+  }
+}

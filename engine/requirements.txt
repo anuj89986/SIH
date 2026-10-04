@@ -1,0 +1,32 @@
+# Direct dependencies only. Lower bounds are the versions this project is
+# developed and tested against (Python 3.12+).
+
+# numerics and data
+numpy>=2.0
+pandas>=2.2
+scipy>=1.13
+pyarrow>=17          # Parquet cache for the ERA5 weather
+
+# physics
+pvlib>=0.11          # irradiance transposition and cell temperature
+
+# forecasting
+lightgbm>=4.5        # quantile regression
+scikit-learn>=1.5    # required by lightgbm's sklearn API
+
+# optimisation
+pulp>=3.0            # MILP modelling
+highspy>=1.7         # HiGHS solver behind PuLP
+
+# local web API
+fastapi>=0.115
+uvicorn>=0.30
+
+# I/O and reporting
+requests>=2.32       # ERA5 archive API and the SIH portal watcher
+plotly>=5.22         # dashboard charts
+matplotlib>=3.8      # deck figures (make_ppt.py)
+python-pptx>=1.0     # SIH idea deck (make_ppt.py)
+
+# tests
+pytest>=8.0

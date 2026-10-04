@@ -1,0 +1,482 @@
+<title>Polar Fuel Survivability Console</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --panel: #ffffff; --ink: #12161c; --muted: #5b6675;
+    --line: #dde3ea; --accent: #1f6feb; --good: #128a5a; --warn: #b5730f;
+    --bad: #c2382c; --ctrlA: #9aa5b1; --ctrlB: #b5730f; --ctrlC: #1f6feb; --ctrlD: #128a5a;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1116; --panel: #161b22; --ink: #e6edf3; --muted: #9198a1;
+      --line: #2a313a; --accent: #58a6ff; --good: #3fb950; --warn: #d29922;
+      --bad: #f85149; --ctrlA: #6e7681; --ctrlB: #d29922; --ctrlC: #58a6ff; --ctrlD: #3fb950;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1116; --panel: #161b22; --ink: #e6edf3; --muted: #9198a1;
+    --line: #2a313a; --accent: #58a6ff; --good: #3fb950; --warn: #d29922;
+    --bad: #f85149; --ctrlA: #6e7681; --ctrlB: #d29922; --ctrlC: #58a6ff; --ctrlD: #3fb950;
+  }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--sans); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 22px 18px 60px; }
+  header h1 { font-size: 21px; margin: 0 0 4px; letter-spacing: -0.015em; font-weight: 600;
+              text-wrap: balance; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .pill { display: inline-block; padding: 2px 9px; border: 1px solid var(--line); border-radius: 999px;
+          font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-right: 6px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; margin: 18px 0 14px; border-bottom: 1px solid var(--line); }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted);
+               padding: 8px 12px; font: inherit; cursor: pointer; }
+  nav button:focus-visible, .controls button:focus-visible, .toggle button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+  nav button.on { color: var(--ink); border-bottom-color: var(--accent); }
+  section { display: none; }
+  section.on { display: block; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; margin: 0 0 3px; }
+  .card p.note { color: var(--muted); font-size: 12.5px; margin: 0 0 12px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 10px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .kpi .v { font-family: var(--mono); font-size: 23px; font-weight: 500; letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums; }
+  .kpi .l { font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+            letter-spacing: 0.08em; }
+  .kpi .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-family: var(--mono); font-weight: 500; font-size: 10.5px;
+       text-transform: uppercase; letter-spacing: 0.06em; }
+  .scroll { overflow-x: auto; }
+  .replay { display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .replay { grid-template-columns: 1fr; } }
+  .gauges { display: flex; gap: 14px; justify-content: center; }
+  .gauge { text-align: center; }
+  .tube { width: 54px; height: 210px; border: 2px solid var(--line); border-radius: 8px; position: relative;
+          overflow: hidden; background: color-mix(in srgb, var(--bg) 70%, var(--panel)); }
+  .fill { position: absolute; bottom: 0; left: 0; right: 0; transition: height .12s linear; }
+  .gauge .cap { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .gauge .num { font-family: var(--mono); font-size: 13px; }
+  .controls { display: flex; gap: 8px; align-items: center; margin: 10px 0 4px; flex-wrap: wrap; }
+  .controls button, .toggle button { background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 5px 11px; font: inherit; cursor: pointer; }
+  .controls button.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .toggle button.on { border-color: var(--accent); color: var(--accent); }
+  input[type=range] { flex: 1; min-width: 180px; accent-color: var(--accent); }
+  .day { font-family: var(--mono); font-size: 13px; color: var(--muted); min-width: 96px; }
+  .chart { width: 100%; height: 340px; }
+  .chart.tall { height: 420px; }
+  .flag { font-size: 11px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); }
+  .flag.assume { border-color: var(--warn); color: var(--warn); }
+  .src { font-size: 12px; color: var(--muted); white-space: normal; text-align: left; max-width: 520px; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 26px; }
+  code { font-family: var(--mono); font-size: 12px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="title">Polar station fuel-survivability console</h1>
+    <div class="sub" id="subtitle"></div>
+    <div style="margin-top:8px" id="pills"></div>
+  </header>
+
+  <nav id="nav"></nav>
+
+  <section id="tab-overview" class="on">
+    <div class="kpis" id="kpis"></div>
+    <div class="card" style="margin-top:14px">
+      <h2>What this is</h2>
+      <p class="note">The two constraints below exist at a polar station and at no grid-connected site. They are the product; everything else is table stakes.</p>
+      <table>
+        <tr><td class="src"><b>Annual resupply.</b> The tank is filled once a year. The objective is not minimum cost per kWh but maximum probability of serving critical load until the ship returns. A Monte Carlo allocator over historical weather years sets a daily litre allowance, and the optimiser pays a steep price for every litre beyond it, with carry-over between horizons.</td></tr>
+        <tr><td class="src"><b>Science integrity.</b> Locally emitted exhaust is unrepresentative of the region and corrupts the station's own atmospheric record. When forecast wind would carry the plume to the sampling inlet, generator operation is priced -- battery and renewables carry the clean-air window.</td></tr>
+        <tr><td class="src"><b>Physical availability.</b> Forecast weather is not forecast generation: drifted panels and iced blades decorrelate the two. Availability is modelled as a state variable and learned as a forecast target.</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Season fuel trajectory</h2>
+      <p class="note">Identical weather, identical station, four controllers. The reserve floor is the line nobody may cross.</p>
+      <div id="fuelAll" class="chart tall"></div>
+    </div>
+  </section>
+
+  <section id="tab-replay">
+    <div class="card">
+      <h2>Season replay: tuned baseline vs proposed</h2>
+      <p class="note">Same weather, same twin. Two tanks draining at different rates, and the day counter to the next ship.</p>
+      <div class="controls">
+        <button id="play" class="primary">Play</button>
+        <input type="range" id="scrub" min="0" value="0">
+        <span class="day" id="dayLabel"></span>
+      </div>
+      <div class="replay">
+        <div class="gauges" id="gauges"></div>
+        <div id="replayChart" class="chart tall"></div>
+      </div>
+      <div class="kpis" id="replayKpis" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="tab-week">
+    <div class="card">
+      <h2>Demo week, hour by hour</h2>
+      <p class="note">Stacked supply against load. Shaded bands are clean-air windows: hours in which a running generator would contaminate the station's own samples.</p>
+      <div class="toggle" id="weekToggle" style="margin-bottom:10px"></div>
+      <div id="weekChart" class="chart tall"></div>
+      <div id="socChart" class="chart" style="height:220px"></div>
+    </div>
+  </section>
+
+  <section id="tab-metrics">
+    <div class="card">
+      <h2>Controller comparison</h2>
+      <p class="note">Report the margin over the tuned baseline B and the gap closed to the perfect-foresight oracle D. Beating A alone would prove nothing.</p>
+      <div class="scroll"><table id="metricsTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Forecast skill on the unseen test year</h2>
+      <p class="note">Walk-forward. Coverage is the share of hours the truth fell inside the predicted quantile -- the calibration that the reserve rule depends on.</p>
+      <div class="scroll"><table id="forecastTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Validation signals nobody fitted</h2>
+      <p class="note">Demand peaks in winter while occupancy is at its minimum, and wind and solar are seasonally complementary. Both fall out of the physics; both are documented in the polar energy literature.</p>
+      <div id="validationChart" class="chart"></div>
+      <div id="availabilityChart" class="chart" style="height:260px"></div>
+    </div>
+  </section>
+
+  <section id="tab-fuel">
+    <div class="card">
+      <h2>Seasonal fuel allocation</h2>
+      <p class="note">Monte Carlo over historical weather years produces the daily litre allowance that holds the survivability target. The optimiser may not exceed it; under-spend earns carry-over.</p>
+      <div class="kpis" id="fuelKpis" style="margin-bottom:12px"></div>
+      <div id="allowanceChart" class="chart"></div>
+    </div>
+  </section>
+
+  <section id="tab-scenarios">
+    <div class="card">
+      <h2>Stress tests</h2>
+      <p class="note">Graceful degradation, not the happy path. Each failure mode below is documented at a real Antarctic station.</p>
+      <div id="scenarioBlocks"></div>
+    </div>
+  </section>
+
+  <section id="tab-assumptions">
+    <div class="card">
+      <h2>Assumptions</h2>
+      <p class="note">Every physical parameter, its value, its source and its confidence. No public electrical load data exists for any polar research station: the load here is synthetic, built bottom-up from headcount and outdoor temperature, and the rows marked ASSUMPTION are where that shows.</p>
+      <div class="controls">
+        <button id="filterAll" class="primary">All parameters</button>
+        <button id="filterAssume">Assumptions only</button>
+      </div>
+      <div class="scroll"><table id="assumptionsTable"></table></div>
+    </div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const CTRL_COLOR = {A: "--ctrlA", B: "--ctrlB", C: "--ctrlC", "C-point": "--warn", D: "--ctrlD"};
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const color = c => css(CTRL_COLOR[c] || "--accent");
+const fmt = (x, d = 0) => (x === null || x === undefined || Number.isNaN(x)) ? "--"
+  : Number(x).toLocaleString(undefined, {minimumFractionDigits: d, maximumFractionDigits: d});
+const el = id => document.getElementById(id);
+
+const layoutBase = () => ({
+  paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  font: {color: css("--ink"), size: 12, family: '"IBM Plex Sans", system-ui, sans-serif'},
+  margin: {l: 56, r: 18, t: 16, b: 40},
+  xaxis: {gridcolor: css("--line"), zerolinecolor: css("--line")},
+  yaxis: {gridcolor: css("--line"), zerolinecolor: css("--line")},
+  legend: {orientation: "h", y: 1.12, x: 0, font: {size: 11}},
+  hovermode: "x unified"
+});
+const CONFIG = {displayModeBar: false, responsive: true};
+
+/* ---------- header ---------- */
+const meta = DATA.meta, rp = meta.run_params || {};
+el("title").textContent = meta.title;
+el("subtitle").textContent = `${meta.problem_statement} - ${meta.organization} / ${meta.department} - modelled on ${meta.station}`;
+el("pills").innerHTML = [
+  `season ${rp.season_start ? rp.season_start.slice(0, 10) : "?"} to ${rp.season_end ? rp.season_end.slice(0, 10) : "?"}`,
+  `${rp.days || "?"} days`,
+  `MPC horizon ${rp.horizon_h} h, step ${rp.control_step_h} h`,
+  `ERA5 test year ${rp.test_year}`,
+  `theme: ${meta.theme_portal}`
+].map(t => `<span class="pill">${t}</span>`).join("");
+el("footer").innerHTML = `Generated ${meta.generated_at}. Weather: ERA5 reanalysis at the station grid point. `
+  + `Electrical load: synthetic, bottom-up, documented in the Assumptions tab. `
+  + `Official problem statement text: "${meta.official_description}"`;
+
+/* ---------- tabs ---------- */
+const TABS = [["overview", "Overview"], ["replay", "Season replay"], ["week", "Demo week"],
+  ["metrics", "Results"], ["fuel", "Fuel plan"], ["scenarios", "Stress tests"], ["assumptions", "Assumptions"]];
+el("nav").innerHTML = TABS.map(([id, label], i) =>
+  `<button data-tab="${id}" class="${i === 0 ? "on" : ""}">${label}</button>`).join("");
+el("nav").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  TABS.forEach(([id]) => el("tab-" + id).classList.toggle("on", id === b.dataset.tab));
+  window.dispatchEvent(new Event("resize"));
+});
+
+/* ---------- overview KPIs ---------- */
+const H = DATA.headline || {};
+const byCtrl = Object.fromEntries(DATA.comparison.map(r => [r.controller, r]));
+const kpi = (label, value, sub, cls) =>
+  `<div class="kpi"><div class="l">${label}</div><div class="v ${cls || ""}">${value}</div><div class="s">${sub || ""}</div></div>`;
+el("kpis").innerHTML = [
+  kpi("Fuel vs tuned baseline", (H.fuel_vs_B_pct <= 0 ? "-" : "+") + fmt(Math.abs(H.fuel_vs_B_pct), 1) + "%",
+      "controller C against baseline B", H.fuel_vs_B_pct <= 0 ? "good" : "bad"),
+  kpi("Gap to oracle closed", fmt(H.gap_to_oracle_closed_pct, 0) + "%", "of what perfect foresight achieves"),
+  kpi("Critical outages", fmt(H.critical_outage_events_C, 0),
+      `baseline B: ${fmt(H.critical_outage_events_B, 0)} events`,
+      H.critical_outage_events_C === 0 ? "good" : "bad"),
+  kpi("Clean-air compliance", fmt(H.clean_air_compliance_C_pct, 1) + "%",
+      `baseline B: ${fmt(H.clean_air_compliance_B_pct, 1)}%`, "good"),
+  kpi("Mean MILP solve", fmt(H.mean_solve_time_ms, 0) + " ms", "per rolling-horizon step, laptop class"),
+  H.ablation_point_forecast_outages !== undefined
+    ? kpi("Ablation: point forecast", fmt(H.ablation_point_forecast_outages, 0) + " outages",
+          "same optimiser, fixed reserve rule",
+          H.ablation_point_forecast_outages > H.critical_outage_events_C ? "warn" : "")
+    : ""
+].join("");
+
+/* ---------- season fuel chart ---------- */
+const daily = DATA.daily;
+const floorL = DATA.fuel_plan.metrics.reserve_floor_l;
+Plotly.newPlot("fuelAll", Object.entries(daily).map(([name, d]) => ({
+  x: d.date, y: d.fuel_remaining_l, name: `${name} - ${byCtrl[name] ? byCtrl[name].label : ""}`,
+  type: "scatter", mode: "lines", line: {width: name === "C" ? 3 : 1.8, color: color(name)}
+})).concat([{
+  x: Object.values(daily)[0].date, y: Object.values(daily)[0].date.map(() => floorL),
+  name: "reserve floor", type: "scatter", mode: "lines",
+  line: {width: 1.5, dash: "dot", color: css("--bad")}
+}]), Object.assign(layoutBase(), {yaxis: {title: "litres in tank", gridcolor: css("--line")}}), CONFIG);
+
+/* ---------- replay ---------- */
+const A = daily.A, B = daily.B, C = daily.C;
+const tank = DATA.fuel_plan.metrics.tank_l;
+const days = (C || B).date;
+el("scrub").max = days.length - 1;
+
+el("gauges").innerHTML = ["B", "C"].map(n => `
+  <div class="gauge">
+    <div class="tube"><div class="fill" id="fill${n}" style="height:100%;background:${color(n)}"></div></div>
+    <div class="cap">${n} - ${n === "B" ? "tuned baseline" : "proposed"}</div>
+    <div class="num" id="num${n}">--</div>
+  </div>`).join("");
+
+Plotly.newPlot("replayChart", [
+  {x: days, y: B.fuel_remaining_l, name: "B tuned baseline", type: "scatter", mode: "lines", line: {color: color("B"), width: 2}},
+  {x: days, y: C.fuel_remaining_l, name: "C proposed", type: "scatter", mode: "lines", line: {color: color("C"), width: 3}},
+  {x: days, y: days.map(() => floorL), name: "reserve floor", type: "scatter", mode: "lines",
+   line: {color: css("--bad"), width: 1.4, dash: "dot"}}
+], Object.assign(layoutBase(), {
+  yaxis: {title: "litres in tank", gridcolor: css("--line")},
+  shapes: [{type: "line", x0: days[0], x1: days[0], y0: 0, y1: tank, line: {color: css("--muted"), width: 1.5}}]
+}), CONFIG);
+
+const resupply = days.length - 1;
+function setDay(i) {
+  el("scrub").value = i;
+  el("dayLabel").textContent = `${days[i]}  (day ${i + 1}/${days.length})`;
+  ["B", "C"].forEach(n => {
+    const d = n === "B" ? B : C;
+    const frac = Math.max(0, Math.min(1, d.fuel_remaining_l[i] / tank));
+    el("fill" + n).style.height = (frac * 100).toFixed(1) + "%";
+    el("fill" + n).style.background = d.fuel_remaining_l[i] <= floorL ? css("--bad") : color(n);
+    el("num" + n).textContent = fmt(d.fuel_remaining_l[i]) + " L";
+  });
+  Plotly.relayout("replayChart", {"shapes[0].x0": days[i], "shapes[0].x1": days[i]});
+  const cum = (d, k) => d[k].slice(0, i + 1).reduce((a, b) => a + b, 0);
+  el("replayKpis").innerHTML = [
+    kpi("Days to resupply", fmt(resupply - i), "next ship window"),
+    kpi("B unserved critical", fmt(cum(B, "unserved_critical_kwh"), 1) + " kWh", "cumulative", cum(B, "unserved_critical_kwh") > 0 ? "bad" : "good"),
+    kpi("C unserved critical", fmt(cum(C, "unserved_critical_kwh"), 1) + " kWh", "cumulative", cum(C, "unserved_critical_kwh") > 0 ? "bad" : "good"),
+    kpi("C fuel saved to date", fmt(cum(B, "fuel_l") - cum(C, "fuel_l")) + " L", "against the tuned baseline", "good")
+  ].join("");
+}
+let timer = null;
+el("play").addEventListener("click", () => {
+  if (timer) { clearInterval(timer); timer = null; el("play").textContent = "Play"; return; }
+  el("play").textContent = "Pause";
+  timer = setInterval(() => {
+    let i = Number(el("scrub").value) + 1;
+    if (i >= days.length) { clearInterval(timer); timer = null; el("play").textContent = "Play"; return; }
+    setDay(i);
+  }, 45);
+});
+el("scrub").addEventListener("input", e => setDay(Number(e.target.value)));
+setDay(0);
+
+/* ---------- demo week ---------- */
+const week = DATA.demo_week;
+const weekNames = Object.keys(week);
+el("weekToggle").innerHTML = weekNames.map((n, i) =>
+  `<button data-w="${n}" class="${i === weekNames.length - 1 ? "on" : ""}">${n} - ${byCtrl[n] ? byCtrl[n].label : ""}</button>`).join(" ");
+function drawWeek(name) {
+  const w = week[name];
+  const bands = [];
+  let s = null;
+  w.clean_air_window.forEach((v, i) => {
+    if (v && s === null) s = i;
+    if ((!v || i === w.clean_air_window.length - 1) && s !== null) {
+      bands.push({type: "rect", xref: "x", yref: "paper", x0: w.time[s], x1: w.time[i],
+                  y0: 0, y1: 1, fillcolor: css("--warn"), opacity: 0.10, line: {width: 0}});
+      s = null;
+    }
+  });
+  const area = (y, nm, c) => ({x: w.time, y: y, name: nm, type: "scatter", mode: "lines",
+    stackgroup: "one", line: {width: 0.5, color: c}, fillcolor: c});
+  Plotly.newPlot("weekChart", [
+    area(w.pv_kw, "PV", "#e2b53f"),
+    area(w.wind_kw, "wind", "#4aa3df"),
+    area(w.discharge_kw, "battery discharge", "#7f6fd4"),
+    area(w.gen_kw, "diesel", "#c2382c"),
+    {x: w.time, y: w.load_kw, name: "load", type: "scatter", mode: "lines",
+     line: {color: css("--ink"), width: 2, dash: "dot"}}
+  ], Object.assign(layoutBase(), {
+    yaxis: {title: "kW", gridcolor: css("--line")}, shapes: bands,
+    annotations: [{x: 0.01, y: 1.06, xref: "paper", yref: "paper", showarrow: false,
+      text: "shaded = clean-air window", font: {size: 11, color: css("--warn")}}]
+  }), CONFIG);
+  Plotly.newPlot("socChart", [{
+    x: w.time, y: w.soc_frac.map(v => v * 100), name: "state of charge",
+    type: "scatter", mode: "lines", line: {color: color(name), width: 2}, fill: "tozeroy",
+    fillcolor: "rgba(88,166,255,0.10)"
+  }], Object.assign(layoutBase(), {
+    yaxis: {title: "battery SoC %", range: [0, 100], gridcolor: css("--line")},
+    margin: {l: 56, r: 18, t: 10, b: 36}
+  }), CONFIG);
+}
+el("weekToggle").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#weekToggle button").forEach(x => x.classList.toggle("on", x === b));
+  drawWeek(b.dataset.w);
+});
+drawWeek(weekNames[weekNames.length - 1]);
+
+/* ---------- metrics table ---------- */
+const COLS = [
+  ["label", "controller", 0, false], ["fuel_l", "fuel (L)", 0, false],
+  ["fuel_vs_B_pct", "vs B (%)", 1, true], ["gap_to_oracle_closed_pct", "gap to oracle closed (%)", 0, false],
+  ["critical_outage_events", "critical outages", 0, false], ["unserved_critical_kwh", "unserved critical (kWh)", 1, false],
+  ["renewable_utilisation_pct", "renewable used (%)", 1, false], ["curtailed_kwh", "curtailed (kWh)", 0, false],
+  ["clean_air_compliance_pct", "clean-air compliance (%)", 1, false],
+  ["genset_total_runtime_h", "genset runtime (h)", 0, false], ["starts", "starts", 0, false],
+  ["battery_equivalent_full_cycles", "battery cycles", 1, false],
+  ["fuel_remaining_l", "fuel left (L)", 0, false], ["mean_solve_time_ms", "solve (ms)", 0, false]
+];
+el("metricsTable").innerHTML =
+  "<tr>" + COLS.map(c => `<th>${c[1]}</th>`).join("") + "</tr>" +
+  DATA.comparison.map(r => "<tr>" + COLS.map(([k, , d, signed]) => {
+    const v = r[k];
+    if (k === "label") return `<td><b style="color:${color(r.controller)}">${r.controller}</b> ${v}</td>`;
+    if (typeof v !== "number") return `<td>--</td>`;
+    const cls = signed ? (v < 0 ? "good" : v > 0 ? "bad" : "") : "";
+    return `<td class="${cls}">${signed && v > 0 ? "+" : ""}${fmt(v, d)}</td>`;
+  }).join("") + "</tr>").join("");
+
+/* ---------- forecast table ---------- */
+const F = DATA.forecast || {};
+el("forecastTable").innerHTML = Object.keys(F).length === 0
+  ? "<tr><td>forecast evaluation was skipped for this run</td></tr>"
+  : "<tr><th>target</th><th>MAE (kW)</th><th>MAPE (%)</th><th>mean pinball</th><th>p90 coverage (%)</th><th>p10 coverage (%)</th></tr>" +
+    Object.entries(F).map(([k, v]) => `<tr><td>${k}</td><td>${fmt(v.mae, 2)}</td><td>${fmt(v.mape_pct, 1)}</td>` +
+      `<td>${fmt(v.pinball_mean, 3)}</td><td>${fmt(100 * v.p90_coverage, 0)}</td><td>${fmt(100 * v.p10_coverage, 0)}</td></tr>`).join("");
+
+/* ---------- validation ---------- */
+const V = DATA.validation;
+Plotly.newPlot("validationChart", [
+  {x: V.month, y: V.load_kw, name: "mean load (kW)", type: "bar", marker: {color: css("--accent")}, opacity: 0.85},
+  {x: V.month, y: V.occupancy, name: "headcount", type: "scatter", mode: "lines+markers", yaxis: "y2",
+   line: {color: css("--warn"), width: 2}},
+  {x: V.month, y: V.temp_c, name: "air temperature (C)", type: "scatter", mode: "lines", yaxis: "y2",
+   line: {color: css("--muted"), width: 1.5, dash: "dot"}}
+], Object.assign(layoutBase(), {
+  yaxis: {title: "kW", gridcolor: css("--line")},
+  yaxis2: {overlaying: "y", side: "right", title: "people / degC", showgrid: false}
+}), CONFIG);
+Plotly.newPlot("availabilityChart", [
+  {x: V.month, y: V.pv_kw, name: "PV available", type: "scatter", mode: "lines", line: {color: "#e2b53f", width: 2}},
+  {x: V.month, y: V.pv_potential_kw, name: "PV if clean", type: "scatter", mode: "lines",
+   line: {color: "#e2b53f", width: 1, dash: "dot"}},
+  {x: V.month, y: V.wind_kw, name: "wind available", type: "scatter", mode: "lines", line: {color: "#4aa3df", width: 2}},
+  {x: V.month, y: V.wind_potential_kw, name: "wind if unimpaired", type: "scatter", mode: "lines",
+   line: {color: "#4aa3df", width: 1, dash: "dot"}}
+], Object.assign(layoutBase(), {
+  yaxis: {title: "mean kW", gridcolor: css("--line")}, margin: {l: 56, r: 18, t: 26, b: 36},
+  annotations: [{x: 0.01, y: 1.14, xref: "paper", yref: "paper", showarrow: false,
+    text: "dotted = weather potential, solid = physically available after drift and icing", font: {size: 11, color: css("--muted")}}]
+}), CONFIG);
+
+/* ---------- fuel plan ---------- */
+const FP = DATA.fuel_plan.metrics;
+el("fuelKpis").innerHTML = [
+  kpi("Tank at season start", fmt(FP.tank_l) + " L", `reserve floor ${fmt(FP.reserve_floor_l)} L`),
+  kpi("Survivability target", fmt(100 * FP.target_survivability, 1) + "%", "P(critical load served to resupply)"),
+  kpi("Mean-year need", fmt(FP.mean_year_need_l) + " L", `worst year ${fmt(FP.worst_year_need_l)} L`),
+  kpi("Allocation binding", FP.budget_binding ? "yes" : "no",
+      FP.budget_binding ? `plan scaled to ${fmt(100 * FP.allocation_scaled_by, 0)}% of the target need` : "tank covers the target need",
+      FP.budget_binding ? "warn" : "good"),
+  kpi("P(run dry) uncontrolled", fmt(100 * FP.p_run_dry_uncontrolled, 0) + "%", "heuristic operation, ensemble years")
+].join("");
+const AL = DATA.fuel_plan.allowance;
+Plotly.newPlot("allowanceChart", [
+  {x: AL.date, y: AL.litres, name: "allowance (L/day)", type: "scatter", mode: "lines",
+   line: {color: css("--warn"), width: 2}},
+  {x: daily.C.date, y: daily.C.fuel_l, name: "C actual burn", type: "scatter", mode: "lines",
+   line: {color: color("C"), width: 1.6}},
+  {x: daily.B.date, y: daily.B.fuel_l, name: "B actual burn", type: "scatter", mode: "lines",
+   line: {color: color("B"), width: 1.2, dash: "dot"}}
+], Object.assign(layoutBase(), {yaxis: {title: "litres per day", gridcolor: css("--line")}}), CONFIG);
+
+/* ---------- scenarios ---------- */
+const SC = DATA.scenarios || {};
+el("scenarioBlocks").innerHTML = Object.keys(SC).length === 0 ? "<p class='note'>no stress tests in this run</p>" :
+  Object.entries(SC).map(([name, s]) => {
+    const rows = Object.entries(s.controllers).map(([c, m]) =>
+      `<tr><td><b style="color:${color(c)}">${c}</b></td><td>${fmt(m.fuel_l)}</td>` +
+      `<td class="${m.unserved_critical_kwh > 0 ? "bad" : "good"}">${fmt(m.unserved_critical_kwh, 1)}</td>` +
+      `<td>${fmt(m.critical_outage_events)}</td><td>${fmt(m.clean_air_compliance_pct, 1)}</td>` +
+      `<td>${fmt(m.fuel_remaining_l)}</td></tr>`).join("");
+    return `<div style="margin-bottom:18px"><h2 style="font-size:14px;margin:0 0 2px">${name}</h2>` +
+      `<p class="note">${s.label}</p><div class="scroll"><table>` +
+      `<tr><th>controller</th><th>fuel (L)</th><th>unserved critical (kWh)</th><th>outage events</th>` +
+      `<th>clean-air compliance (%)</th><th>fuel left (L)</th></tr>${rows}</table></div></div>`;
+  }).join("");
+
+/* ---------- assumptions ---------- */
+function drawAssumptions(onlyAssumptions) {
+  const rows = DATA.assumptions.filter(r => !onlyAssumptions || r.is_assumption);
+  el("assumptionsTable").innerHTML =
+    "<tr><th>parameter</th><th>value</th><th>unit</th><th>sensitivity</th><th>confidence</th><th>source</th></tr>" +
+    rows.map(r => `<tr><td><code>${r.parameter}</code></td>` +
+      `<td>${typeof r.value === "number" ? fmt(r.value, Math.abs(r.value) < 10 ? 3 : 0) : r.value}</td>` +
+      `<td>${r.unit || ""}</td>` +
+      `<td>${r.sensitivity ? r.sensitivity.join(" - ") : ""}</td>` +
+      `<td><span class="flag ${r.is_assumption ? "assume" : ""}">${r.confidence}</span></td>` +
+      `<td class="src">${r.source}</td></tr>`).join("");
+}
+el("filterAll").addEventListener("click", () => {
+  el("filterAll").classList.add("primary"); el("filterAssume").classList.remove("primary"); drawAssumptions(false);
+});
+el("filterAssume").addEventListener("click", () => {
+  el("filterAssume").classList.add("primary"); el("filterAll").classList.remove("primary"); drawAssumptions(true);
+});
+drawAssumptions(false);
+</script>

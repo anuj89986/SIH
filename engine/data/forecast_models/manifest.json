@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "feature_names": [
+    "hour_sin",
+    "hour_cos",
+    "doy_sin",
+    "doy_cos",
+    "lead_h",
+    "occupancy",
+    "nwp_temp_c",
+    "nwp_wind_ms",
+    "nwp_ghi_wm2",
+    "nwp_snowfall_cm",
+    "nwp_rh_pct",
+    "nwp_pressure_hpa",
+    "nwp_wind_dir_sin",
+    "nwp_wind_dir_cos",
+    "nwp_hdh",
+    "nwp_wind_cube",
+    "last_load_kw",
+    "last_load_kw_24h",
+    "last_pv_kw",
+    "last_pv_kw_24h",
+    "last_wind_kw",
+    "last_wind_kw_24h"
+  ],
+  "fallback_spread": {
+    "load_kw": 12.533685112502859,
+    "pv_kw": 41.662228697468315,
+    "wind_kw": 32.54372908273889
+  },
+  "train_report": {
+    "n_rows": 420249,
+    "n_features": 22
+  },
+  "metadata": {
+    "training_years": [
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "station_config": {
+      "_meta": {
+        "problem_statement": "SIH26061",
+        "title": "AI-Driven Smart Energy Management System for Polar Research Stations",
+        "organization": "Ministry of Earth Sciences (MoES)",
+        "department": "National Centre for Polar and Ocean Research (NCPOR)",
+        "official_description": "Develop an intelligent energy-management system using AI for load forecasting, renewable energy integration and fuel optimization under extreme polar conditions.",
+        "theme_portal": "Clean & Green Technology",
+        "category": "Software",
+        "deadline_portal": "30-09-2026",
+        "portal_verified_on": "2026-09-03",
+        "note": "Every numeric parameter below carries source + confidence + sensitivity range. The dashboard Assumptions tab is generated from this file. Do not edit a value without editing its source."
+      },
+      "station": {
+        "name": "Maitri II (design case)",
+        "latitude": -70.7667,
+        "longitude": 11.7333,
+        "elevation": 130.0,
+        "timezone": "UTC"
+      },
+      "population": {
+        "summer_headcount": 45,
+        "winter_headcount": 25,
+        "summer_start_mmdd": "11-15",
+        "summer_end_mmdd": "03-01"
+      },
+      "thermal": {
+        "envelope_UA": 4.2,
+        "indoor_setpoint": 20.0,
+        "heat_electrified_frac": 0.45,
+        "snowmelt_kwh_per_person_day": 11.0,
+        "waste_heat_recovery_frac": 0.35
+      },
+      "loads": {
+        "science_base_kw": 12.0,
+        "life_safety_kw": 8.0,
+        "domestic_kw_per_person": 0.42,
+        "workshop_peak_kw": 18.0
+      },
+      "pv": {
+        "kwp": 120.0,
+        "tilt": 70.0,
+        "azimuth": 0.0,
+        "albedo": 0.85,
+        "temp_coeff": -0.004,
+        "system_losses": 0.12,
+        "bifacial_gain": 0.1
+      },
+      "wind": {
+        "n_turbines": 3,
+        "rated_kw": 30.0,
+        "hub_height": 20.0,
+        "cut_in": 3.5,
+        "rated_speed": 12.0,
+        "cut_out": 25.0,
+        "deice_kw_frac": 0.06,
+        "shear_alpha": 0.14
+      },
+      "battery": {
+        "capacity_kwh": 400.0,
+        "power_kw": 150.0,
+        "soc_min": 0.15,
+        "soc_max": 0.95,
+        "roundtrip_eff": 0.9,
+        "degradation_cost_per_kwh": 0.02
+      },
+      "gensets": [
+        {
+          "id": "DG1",
+          "rated_kw": 125.0,
+          "min_load_frac": 0.3,
+          "fuel_a_lph_per_kw_rated": 0.084,
+          "fuel_b_lph_per_kw_out": 0.246,
+          "start_cost_l": 3.5,
+          "min_up_h": 2,
+          "min_down_h": 2
+        },
+        {
+          "id": "DG2",
+          "rated_kw": 60.0,
+          "min_load_frac": 0.3,
+          "fuel_a_lph_per_kw_rated": 0.084,
+          "fuel_b_lph_per_kw_out": 0.252,
+          "start_cost_l": 2.0,
+          "min_up_h": 2,
+          "min_down_h": 2
+        }
+      ],
+      "fuel": {
+        "tank_litres_at_season_start": 72000.0,
+        "resupply_mmdd": "02-01",
+        "reserve_floor_litres": 6000.0,
+        "survivability_target": 0.99
+      },
+      "clean_air": {
+        "enabled": true,
+        "inlet_bearing_deg": 45.0,
+        "sector_halfwidth_deg": 60.0,
+        "max_wind_ms": 8.0,
+        "min_wind_ms": 1.0,
+        "penalty_l_per_h": 40.0,
+        "hard_constraint": false,
+        "note": "Justification: locally emitted greenhouse gases are unrepresentative of the wider region and distort the station's own atmospheric record (de Witt et al. 2024)."
+      },
+      "snow": {
+        "accum_per_cm_snowfall": 0.22,
+        "wind_clearing_per_ms": 0.03,
+        "wind_clear_threshold": 8.0,
+        "melt_clear_above_c": -2.0,
+        "manual_clean_interval_days": 7,
+        "icing_temp_low_c": -12.0,
+        "icing_temp_high_c": 0.5,
+        "icing_derate_max": 0.55
+      },
+      "simulation": {
+        "train_years": [
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "test_year": 2023,
+        "mc_years": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "horizon_h": 36,
+        "control_step_h": 6,
+        "reserve_quantile": "p90",
+        "seed": 26061
+      }
+    },
+    "nwp": "lead-degraded ERA5; synthetic forecast inputs"
+  },
+  "models": [
+    "load_kw_p10",
+    "load_kw_p50",
+    "load_kw_p90",
+    "pv_kw_p10",
+    "pv_kw_p50",
+    "pv_kw_p90",
+    "wind_kw_p10",
+    "wind_kw_p50",
+    "wind_kw_p90"
+  ]
+}

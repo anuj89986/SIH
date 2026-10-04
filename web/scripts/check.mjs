@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {simulate,defaults,MODEL_VERSION} from '../dist/simulation.js';
+for(const f of ['dist/app.js','dist/simulation.js','dist/worker.js','dist/optimise.js','scripts/serve.mjs'])execFileSync(process.execPath,['--check',f]);
+for(const f of ['index.html','style.css','favicon.svg','BUILD_GUIDE.md','data/default-run.json'])if(!fs.existsSync('dist/'+f))throw Error('Missing '+f);
+const html=fs.readFileSync('dist/index.html','utf8');for(const m of html.matchAll(/(?:src|href)="\.\/([^"#]+)"/g))if(!fs.existsSync('dist/'+m[1]))throw Error('Missing asset '+m[1]);
+const cached=JSON.parse(fs.readFileSync('dist/data/default-run.json','utf8'));
+if(cached.modelVersion!==MODEL_VERSION||JSON.stringify(cached.config)!==JSON.stringify(defaults))throw Error('Cached run metadata is stale');
+const fresh=simulate(defaults);for(let i=0;i<2;i++)if(JSON.stringify(fresh.runs[i])!==JSON.stringify(cached.runs[i]))throw Error('Cached default results do not match the engine');
+console.log('JavaScript, entrypoint assets and reproducible default-run checks passed. dist/ is ready to deploy.');

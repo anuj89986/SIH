@@ -1,0 +1,27 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+*.log
+
+# generated previews and scratch, not deliverables
+engine/dashboard/dashboard_preview.html
+engine/results/*.log
+engine/assets/deck/preview/
+web/.sites-runtime/
+
+# secrets - never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db

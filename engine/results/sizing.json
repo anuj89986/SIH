@@ -1,0 +1,107 @@
+{
+ "tank_l": 72000.0,
+ "usable_l": 66000.0,
+ "target": 0.99,
+ "years": [
+  2015,
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022
+ ],
+ "rows": [
+  {
+   "pv_kwp": 200.0,
+   "wind_kw": 240.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 37175.4745530866,
+   "p_target_litres": 43470.8483084622,
+   "worst_season_litres": 43550.7581155732,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 49470.8483084622
+  },
+  {
+   "pv_kwp": 120.0,
+   "wind_kw": 240.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 41357.4067715008,
+   "p_target_litres": 47092.669734077,
+   "worst_season_litres": 47100.7201832354,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 53092.669734077
+  },
+  {
+   "pv_kwp": 80.0,
+   "wind_kw": 240.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 45017.419838621,
+   "p_target_litres": 51328.4301811612,
+   "worst_season_litres": 51402.4451089042,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 57328.4301811612
+  },
+  {
+   "pv_kwp": 200.0,
+   "wind_kw": 180.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 44252.4463779705,
+   "p_target_litres": 51887.7207011493,
+   "worst_season_litres": 52000.2100483343,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 57887.7207011493
+  },
+  {
+   "pv_kwp": 120.0,
+   "wind_kw": 180.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 49023.7943658113,
+   "p_target_litres": 55850.756919629,
+   "worst_season_litres": 55899.3952262317,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 61850.756919629
+  },
+  {
+   "pv_kwp": 80.0,
+   "wind_kw": 180.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 53147.1321935226,
+   "p_target_litres": 59971.0809935725,
+   "worst_season_litres": 60017.6759317374,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 65971.0809935725
+  },
+  {
+   "pv_kwp": 200.0,
+   "wind_kw": 120.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 55401.3893795026,
+   "p_target_litres": 64169.4324715472,
+   "worst_season_litres": 64316.8608777366,
+   "p_run_dry_at_tank": 0.0,
+   "tank_needed_for_target_l": 70169.4324715472
+  },
+  {
+   "pv_kwp": 120.0,
+   "wind_kw": 120.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 61201.6273017864,
+   "p_target_litres": 69681.5585846156,
+   "worst_season_litres": 69791.2393902484,
+   "p_run_dry_at_tank": 0.375,
+   "tank_needed_for_target_l": 75681.5585846156
+  },
+  {
+   "pv_kwp": 80.0,
+   "wind_kw": 120.0,
+   "battery_kwh": 400.0,
+   "mean_season_litres": 66067.496176071,
+   "p_target_litres": 74983.7549758621,
+   "worst_season_litres": 75114.7455551147,
+   "p_run_dry_at_tank": 0.5,
+   "tank_needed_for_target_l": 80983.7549758621
+  }
+ ]
+}

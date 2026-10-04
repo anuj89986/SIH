@@ -1,0 +1,15 @@
+# Normalise line endings in the repository; check out native on Windows.
+* text=auto eol=lf
+
+# Binary deliverables and data - never touch these
+*.png    binary
+*.jpg    binary
+*.svg    text eol=lf
+*.pdf    binary
+*.pptx   binary
+*.parquet binary
+*.zip    binary
+
+# Generated bundles: keep diffs out of review
+engine/dashboard/dashboard.html -diff linguist-generated
+engine/dashboard/vendor/plotly.min.js -diff linguist-vendored

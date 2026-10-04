@@ -1,0 +1,130 @@
+{
+  "_meta": {
+    "problem_statement": "SIH26061",
+    "title": "AI-Driven Smart Energy Management System for Polar Research Stations",
+    "organization": "Ministry of Earth Sciences (MoES)",
+    "department": "National Centre for Polar and Ocean Research (NCPOR)",
+    "official_description": "Develop an intelligent energy-management system using AI for load forecasting, renewable energy integration and fuel optimization under extreme polar conditions.",
+    "theme_portal": "Clean & Green Technology",
+    "category": "Software",
+    "deadline_portal": "30-09-2026",
+    "portal_verified_on": "2026-09-03",
+    "note": "Every numeric parameter below carries source + confidence + sensitivity range. The dashboard Assumptions tab is generated from this file. Do not edit a value without editing its source."
+  },
+
+  "station": {
+    "name": "Maitri II (design case)",
+    "latitude":  {"value": -70.7667, "unit": "deg", "source": "NCPOR / COMNAP station catalogue (Schirmacher Oasis)", "confidence": "high"},
+    "longitude": {"value": 11.7333,  "unit": "deg", "source": "NCPOR / COMNAP station catalogue", "confidence": "high"},
+    "elevation": {"value": 130.0,    "unit": "m",   "source": "ERA5 grid elevation at site", "confidence": "high"},
+    "timezone": "UTC"
+  },
+
+  "population": {
+    "summer_headcount": {"value": 45, "source": "NCPOR Maitri description (40-45 summer)", "confidence": "high", "sensitivity": [35, 55]},
+    "winter_headcount": {"value": 25, "source": "NCPOR Maitri description (about 25 winter)", "confidence": "high", "sensitivity": [20, 30]},
+    "summer_start_mmdd": {"value": "11-15", "source": "austral summer crew arrival window", "confidence": "medium"},
+    "summer_end_mmdd":   {"value": "03-01", "source": "austral summer crew departure window", "confidence": "medium"}
+  },
+
+  "thermal": {
+    "envelope_UA":            {"value": 4.2,  "unit": "kW/K", "source": "ASSUMPTION: sized so annual heat demand matches published Antarctic station fuel-demand shape", "confidence": "low", "sensitivity": [2.5, 6.5]},
+    "indoor_setpoint":        {"value": 20.0, "unit": "degC", "source": "habitability standard", "confidence": "high", "sensitivity": [18, 22]},
+    "heat_electrified_frac":  {"value": 0.45, "unit": "-", "source": "ASSUMPTION: fraction of heat served electrically vs genset waste-heat recovery", "confidence": "low", "sensitivity": [0.2, 0.8]},
+    "snowmelt_kwh_per_person_day": {"value": 11.0, "unit": "kWh/person/day", "source": "ASSUMPTION: melting and heating about 90 L/person/day water from -15 degC snow", "confidence": "medium", "sensitivity": [6, 18]},
+    "waste_heat_recovery_frac":    {"value": 0.35, "unit": "-", "source": "Maitri II design intent (waste-heat recovery), public reporting", "confidence": "medium", "sensitivity": [0.0, 0.5]}
+  },
+
+  "loads": {
+    "science_base_kw":        {"value": 12.0, "unit": "kW", "source": "ASSUMPTION: 24x7 instruments, comms, server hall", "confidence": "low", "sensitivity": [6, 20]},
+    "life_safety_kw":         {"value": 8.0,  "unit": "kW", "source": "ASSUMPTION: controls, fire, comms, medical, water pumps", "confidence": "low", "sensitivity": [4, 12]},
+    "domestic_kw_per_person": {"value": 0.42, "unit": "kW/person", "source": "ASSUMPTION: galley, laundry, lighting, personal", "confidence": "low", "sensitivity": [0.25, 0.7]},
+    "workshop_peak_kw":       {"value": 18.0, "unit": "kW", "source": "ASSUMPTION: deferrable summer workshop and vehicle-bay load", "confidence": "low", "sensitivity": [8, 30]}
+  },
+
+  "pv": {
+    "kwp":           {"value": 120.0, "unit": "kWp", "source": "ASSUMPTION: Maitri II green-station scale, not yet published", "confidence": "low", "sensitivity": [40, 250]},
+    "tilt":          {"value": 70.0,  "unit": "deg", "source": "Polar solar design practice: steep tilt sheds snow and captures low sun", "confidence": "medium", "sensitivity": [45, 90]},
+    "azimuth":       {"value": 0.0,   "unit": "deg", "source": "North-facing in southern hemisphere", "confidence": "high"},
+    "albedo":        {"value": 0.85,  "unit": "-",   "source": "Snow albedo, polar solar literature", "confidence": "high", "sensitivity": [0.6, 0.9]},
+    "temp_coeff":    {"value": -0.0040, "unit": "1/K", "source": "de Witt et al. 2024: 0.35-0.5 percent per K gain below STC", "confidence": "high", "sensitivity": [-0.005, -0.0035]},
+    "system_losses": {"value": 0.12,  "unit": "-", "source": "wiring, inverter, mismatch", "confidence": "medium"},
+    "bifacial_gain": {"value": 0.10,  "unit": "-", "source": "ASSUMPTION: rear-side gain over high-albedo snow", "confidence": "low", "sensitivity": [0.0, 0.25]}
+  },
+
+  "wind": {
+    "n_turbines":   {"value": 3,    "unit": "-",  "source": "ASSUMPTION", "confidence": "low", "sensitivity": [1, 6]},
+    "rated_kw":     {"value": 30.0, "unit": "kW", "source": "ASSUMPTION: cold-hardened small-turbine class (Mawson 300 kW, Neumayer 20 kW)", "confidence": "low", "sensitivity": [10, 100]},
+    "hub_height":   {"value": 20.0, "unit": "m",  "source": "ASSUMPTION", "confidence": "medium"},
+    "cut_in":       {"value": 3.5,  "unit": "m/s", "source": "typical small-turbine power curve", "confidence": "high"},
+    "rated_speed":  {"value": 12.0, "unit": "m/s", "source": "typical small-turbine power curve", "confidence": "high"},
+    "cut_out":      {"value": 25.0, "unit": "m/s", "source": "typical small-turbine power curve", "confidence": "high", "sensitivity": [20, 30]},
+    "deice_kw_frac":{"value": 0.06, "unit": "-",  "source": "de Witt et al. 2024: de-icing costs 2-12 percent of nameplate", "confidence": "high", "sensitivity": [0.02, 0.12]},
+    "shear_alpha":  {"value": 0.14, "unit": "-",  "source": "power-law shear over open snow surface", "confidence": "medium", "sensitivity": [0.08, 0.2]}
+  },
+
+  "battery": {
+    "capacity_kwh":  {"value": 400.0, "unit": "kWh", "source": "ASSUMPTION: Princess Elisabeth-class stabilisation bank", "confidence": "low", "sensitivity": [150, 900]},
+    "power_kw":      {"value": 150.0, "unit": "kW",  "source": "ASSUMPTION: about 0.375C", "confidence": "low", "sensitivity": [60, 300]},
+    "soc_min":       {"value": 0.15,  "unit": "-",   "source": "cold-climate depth-of-discharge limit", "confidence": "medium", "sensitivity": [0.1, 0.3]},
+    "soc_max":       {"value": 0.95,  "unit": "-",   "source": "BMS limit", "confidence": "high"},
+    "roundtrip_eff": {"value": 0.90,  "unit": "-",   "source": "LFP round trip including inverter", "confidence": "high", "sensitivity": [0.82, 0.94]},
+    "degradation_cost_per_kwh": {"value": 0.02, "unit": "L-equivalent/kWh", "source": "ASSUMPTION: throughput proxy penalty", "confidence": "low"}
+  },
+
+  "gensets": [
+    {"id": "DG1",
+     "rated_kw": {"value": 125.0, "unit": "kW", "source": "ASSUMPTION: primary set", "confidence": "low", "sensitivity": [80, 200]},
+     "min_load_frac": {"value": 0.30, "source": "manufacturer wet-stacking limit", "confidence": "high"},
+     "fuel_a_lph_per_kw_rated": {"value": 0.084, "source": "affine genset fuel curve, no-load term", "confidence": "medium"},
+     "fuel_b_lph_per_kw_out":   {"value": 0.246, "source": "affine genset fuel curve, marginal term", "confidence": "medium"},
+     "start_cost_l": {"value": 3.5, "unit": "L-equivalent", "source": "ASSUMPTION: start wear plus purge fuel", "confidence": "low", "sensitivity": [1, 8]},
+     "min_up_h": 2, "min_down_h": 2},
+    {"id": "DG2",
+     "rated_kw": {"value": 60.0, "unit": "kW", "source": "ASSUMPTION: small set for winter base load", "confidence": "low", "sensitivity": [30, 100]},
+     "min_load_frac": {"value": 0.30, "source": "manufacturer wet-stacking limit", "confidence": "high"},
+     "fuel_a_lph_per_kw_rated": {"value": 0.084, "source": "affine genset fuel curve", "confidence": "medium"},
+     "fuel_b_lph_per_kw_out":   {"value": 0.252, "source": "affine genset fuel curve", "confidence": "medium"},
+     "start_cost_l": {"value": 2.0, "unit": "L-equivalent", "source": "ASSUMPTION", "confidence": "low", "sensitivity": [0.5, 5]},
+     "min_up_h": 2, "min_down_h": 2}
+  ],
+
+  "fuel": {
+    "tank_litres_at_season_start": {"value": 72000.0, "unit": "L", "source": "DESIGN CHOICE: calibrated by calibrate.py to 0.98x the tuned rule-based baseline burn over the 210-day demo season, so survivability is genuinely at stake. A real station tank is a procurement figure we do not have; the sensitivity range spans comfortable to severe.", "confidence": "low", "sensitivity": [60000, 120000]},
+    "resupply_mmdd":               {"value": "02-01", "unit": "MM-DD", "source": "austral summer ship window", "confidence": "medium"},
+    "reserve_floor_litres":        {"value": 6000.0, "unit": "L", "source": "ASSUMPTION: emergency untouchable reserve, about 20 days of critical-only load", "confidence": "medium", "sensitivity": [3000, 12000]},
+    "survivability_target":        {"value": 0.99, "unit": "P(critical load served to resupply)", "source": "DESIGN CHOICE", "confidence": "high", "sensitivity": [0.95, 0.999]}
+  },
+
+  "clean_air": {
+    "enabled": true,
+    "inlet_bearing_deg":    {"value": 45.0, "unit": "deg", "source": "ASSUMPTION: clean-air sampling inlet upwind of station", "confidence": "low"},
+    "sector_halfwidth_deg": {"value": 60.0, "unit": "deg", "source": "ASSUMPTION: contamination sector halfwidth", "confidence": "low", "sensitivity": [30, 90]},
+    "max_wind_ms":          {"value": 8.0,  "unit": "m/s", "source": "ASSUMPTION: above this the plume disperses before the inlet", "confidence": "low", "sensitivity": [5, 12]},
+    "min_wind_ms":          {"value": 1.0,  "unit": "m/s", "source": "ASSUMPTION: below this, stagnation contaminates regardless of direction", "confidence": "low"},
+    "penalty_l_per_h":      {"value": 40.0, "unit": "L-equivalent/h", "source": "DESIGN CHOICE: soft-constraint price of one contaminated sampling hour", "confidence": "medium", "sensitivity": [10, 200]},
+    "hard_constraint": false,
+    "note": "Justification: locally emitted greenhouse gases are unrepresentative of the wider region and distort the station's own atmospheric record (de Witt et al. 2024)."
+  },
+
+  "snow": {
+    "accum_per_cm_snowfall": {"value": 0.22, "unit": "coverage-fraction per cm", "source": "ASSUMPTION", "confidence": "low", "sensitivity": [0.1, 0.4]},
+    "wind_clearing_per_ms":  {"value": 0.030, "unit": "per hour per m/s above threshold", "source": "ASSUMPTION: drift scouring of steep panels", "confidence": "low", "sensitivity": [0.01, 0.06]},
+    "wind_clear_threshold":  {"value": 8.0,  "unit": "m/s", "source": "ASSUMPTION", "confidence": "low"},
+    "melt_clear_above_c":    {"value": -2.0, "unit": "degC", "source": "ASSUMPTION", "confidence": "low"},
+    "manual_clean_interval_days": {"value": 7, "unit": "d", "source": "ASSUMPTION: crew clears array weekly when coverage exceeds 0.4", "confidence": "low"},
+    "icing_temp_low_c":      {"value": -12.0, "unit": "degC", "source": "Parent and Ilinca 2011 icing regime", "confidence": "medium"},
+    "icing_temp_high_c":     {"value": 0.5,   "unit": "degC", "source": "Parent and Ilinca 2011 icing regime", "confidence": "medium"},
+    "icing_derate_max":      {"value": 0.55, "unit": "-", "source": "ASSUMPTION: worst-case aerodynamic loss under accreted ice", "confidence": "low", "sensitivity": [0.2, 0.8]}
+  },
+
+  "simulation": {
+    "train_years": [2019, 2020, 2021, 2022],
+    "test_year": 2023,
+    "mc_years": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022],
+    "horizon_h": 36,
+    "control_step_h": 6,
+    "reserve_quantile": "p90",
+    "seed": 26061
+  }
+}
